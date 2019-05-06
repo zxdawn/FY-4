@@ -16,7 +16,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-"""Advanced Geostationary Radiation Imager for the Level 1 format
+"""Advanced Geostationary Radiation Imager for the Level_1 HDF format
 
 The files read by this reader are described in the official Real Time Data Service:
 
@@ -52,20 +52,6 @@ class HDF_AGRL_L1(HDF5FileHandler):
         file_key =  ds_info.get('file_key', dataset_id.name)
         data = self.get(file_key)
 
-        data.attrs.update({'platform_name': self['/attr/Satellite Name'],
-                           'sensor': self['/attr/Sensor Identification Code']})
-        data.attrs.update(ds_info)
-
-        # convert to satpy standard units
-        calibration = data.attrs.get('calibration')
-        units = self.get(file_key + '/attr/units')
-        if units is not None and str(units).lower() != 'none':
-            data.attrs.update({'units': self.get(file_key + '/attr/units')})
-        elif calibration == 'reflectance':
-            data.attrs.update({'units': '%'})
-        else:
-            data.attrs.update({'units': '1'})
-
         # convert bytes to string
         data.attrs['long_name']  = data.attrs['long_name'].decode("utf-8")
         data.attrs['band_names'] = data.attrs['band_names'].decode("utf-8")
@@ -74,6 +60,9 @@ class HDF_AGRL_L1(HDF5FileHandler):
         data = data.where((data >= data.attrs['valid_range'][0]) &
                           (data <= data.attrs['valid_range'][1]))    
         
+        # calibration
+        calibration = ds_info['calibration']
+
         if calibration == 'counts':
             return data
         elif calibration == 'reflectance':
@@ -87,6 +76,17 @@ class HDF_AGRL_L1(HDF5FileHandler):
             logger.debug("Calibrating to brightness_temperature")
             # the value of dn is the index of brightness_temperature
             data = self.calibrate(data, 'CAL'+file_key[3:])
+
+        data.attrs.update({'platform_name': self['/attr/Satellite Name'],
+                           'sensor': self['/attr/Sensor Identification Code']})
+        data.attrs.update(ds_info)
+        units = self.get(file_key + '/attr/units')
+        if data.attrs.get('calibration') == 'brightness_temperature':
+            data.attrs.update({'units': 'K'})
+        elif data.attrs.get('calibration') == 'reflectance':
+            data.attrs.update({'units': '%'})
+        else:
+            data.attrs.update({'units': '1'})
 
         return data
 
@@ -149,7 +149,7 @@ class HDF_AGRL_L1(HDF5FileHandler):
             Reflectance [%]
         """
         ref  = dn * slope + offset
-        ref *= 100 # unit: %
+        ref *= 100 # set unit to %
 
         return ref.clip(min=0)
 
