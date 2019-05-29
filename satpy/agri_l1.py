@@ -71,8 +71,14 @@ class HDF_AGRI_L1(HDF5FileHandler):
             logger.debug("Calibrating to reflectances")
             # using the corresponding SCALE and OFFSET
             cal_coef = 'CALIBRATION_COEF(SCALE+OFFSET)'
-            slope = self.get(cal_coef)[:, 0][int(file_key[-2:])-1].values
-            offset = self.get(cal_coef)[:, 1][int(file_key[-2:])-1].values
+            num_channel = self.get(cal_coef).shape[0]
+            if num_channel == 1:
+                # only channel_2, resolution = 500 m
+                slope = self.get(cal_coef)[:, 0].values
+                offset = self.get(cal_coef)[:, 1].values
+            else:
+                slope = self.get(cal_coef)[:, 0][int(file_key[-2:])-1].values
+                offset = self.get(cal_coef)[:, 1][int(file_key[-2:])-1].values
             data = self.dn2reflectance(data, slope, offset)
             ds_info['valid_range'] = (data.attrs['valid_range'] * slope + offset) * 100
 
@@ -175,7 +181,7 @@ class HDF_AGRI_L1(HDF5FileHandler):
         """
         # append nan to the end of lut for fillvalue
         lut = np.append(lut, np.nan)
-        data.data = da.where(data.data == data.attrs['FillValue'], lut.shape[0] - 1, data.data)
+        data.data = da.where(data.data > lut.shape[0], lut.shape[0] - 1, data.data)
         res = data.data.map_blocks(self._getitem, lut, dtype=lut.dtype)
         res = xr.DataArray(res, dims=data.dims,
                            attrs=data.attrs, coords=data.coords)
