@@ -21,16 +21,11 @@
 """Test for readers/agri_l1.py.
 """
 from satpy.tests.reader_tests.test_hdf5_utils import FakeHDF5FileHandler
-import sys
 import numpy as np
 import dask.array as da
 import xarray as xr
 import os
-
-if sys.version_info < (2, 7):
-    import unittest2 as unittest
-else:
-    import unittest
+import unittest
 
 try:
     from unittest import mock
@@ -197,6 +192,7 @@ class FakeHDF5FileHandler2(FakeHDF5FileHandler):
         """Mimic reader input file content."""
         global_attrs = {
             '/attr/NOMCenterLat': 0.0, '/attr/NOMCenterLon': 104.7, '/attr/NOMSatHeight': 3.5786E7,
+            '/attr/dEA': 6378.14, '/attr/dObRecFlat': 298.257223563,
             '/attr/OBIType': 'REGC', '/attr/RegLength': 2.0, '/attr/RegWidth': 5.0,
             '/attr/Begin Line Number': 0, '/attr/End Line Number': 1,
             '/attr/Observing Beginning Date': '2019-06-03', '/attr/Observing Beginning Time': '00:30:01.807',
