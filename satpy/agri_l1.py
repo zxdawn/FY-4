@@ -1,22 +1,21 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-#
 # Copyright (c) 2019 Satpy developers
 #
-# This program is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
+# This file is part of satpy.
 #
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
+# satpy is free software: you can redistribute it and/or modify it under the
+# terms of the GNU General Public License as published by the Free Software
+# Foundation, either version 3 of the License, or (at your option) any later
+# version.
 #
-# You should have received a copy of the GNU General Public License
-# along with this program.  If not, see <http://www.gnu.org/licenses/>.
-
-"""Advanced Geostationary Radiation Imager for the Level_1 HDF format
+# satpy is distributed in the hope that it will be useful, but WITHOUT ANY
+# WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
+# A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License along with
+# satpy.  If not, see <http://www.gnu.org/licenses/>.
+"""Advanced Geostationary Radiation Imager reader for the Level_1 HDF format
 
 The files read by this reader are described in the official Real Time Data Service:
 
@@ -71,20 +70,26 @@ class HDF_AGRI_L1(HDF5FileHandler):
             ds_info['valid_range'] = data.attrs['valid_range']
             return data
 
-        elif calibration == 'reflectance':
+        elif calibration in ['reflectance', 'radiance']:
             logger.debug("Calibrating to reflectances")
             # using the corresponding SCALE and OFFSET
             cal_coef = 'CALIBRATION_COEF(SCALE+OFFSET)'
             num_channel = self.get(cal_coef).shape[0]
+
             if num_channel == 1:
                 # only channel_2, resolution = 500 m
-                slope = self.get(cal_coef)[:, 0].values
-                offset = self.get(cal_coef)[:, 1].values
+                slope = self.get(cal_coef)[0, 0].values
+                offset = self.get(cal_coef)[0, 1].values
             else:
-                slope = self.get(cal_coef)[:, 0][int(file_key[-2:])-1].values
-                offset = self.get(cal_coef)[:, 1][int(file_key[-2:])-1].values
-            data = self.dn2reflectance(data, slope, offset)
-            ds_info['valid_range'] = (data.attrs['valid_range'] * slope + offset) * 100
+                slope = self.get(cal_coef)[int(file_key[-2:])-1, 0].values
+                offset = self.get(cal_coef)[int(file_key[-2:])-1, 1].values
+
+            data = self.dn2(data, calibration, slope, offset)
+
+            if calibration == 'reflectance':
+                ds_info['valid_range'] = (data.attrs['valid_range'] * slope + offset) * 100
+            else:
+                ds_info['valid_range'] = (data.attrs['valid_range'] * slope + offset)
 
         elif calibration == 'brightness_temperature':
             logger.debug("Calibrating to brightness_temperature")
@@ -94,9 +99,10 @@ class HDF_AGRI_L1(HDF5FileHandler):
 
         data.attrs.update({'platform_name': self['/attr/Satellite Name'],
                            'sensor': self['/attr/Sensor Identification Code'],
+                           'orbital_parameters': {
                            'satellite_nominal_latitude': self['/attr/NOMCenterLat'],
                            'satellite_nominal_longitude': self['/attr/NOMCenterLon'],
-                           'satellite_nominal_altitude': self['/attr/NOMSatHeight']})
+                           'satellite_nominal_altitude': self['/attr/NOMSatHeight']}})
         data.attrs.update(ds_info)
 
         # remove attributes that could be confusing later
@@ -104,8 +110,8 @@ class HDF_AGRI_L1(HDF5FileHandler):
         data.attrs.pop('Intercept', None)
         data.attrs.pop('Slope', None)
 
-        data = data.where((data >= data.attrs['valid_range'][0]) &
-                          (data <= data.attrs['valid_range'][1]))
+        data = data.where((data >= min(data.attrs['valid_range'])) &
+                          (data <= max(data.attrs['valid_range'])))
 
         return data
 
@@ -154,21 +160,23 @@ class HDF_AGRI_L1(HDF5FileHandler):
             nlines,
             area_extent)
 
-        self.area = area
-
         return area
 
-    def dn2reflectance(self, dn, slope, offset):
-        """Convert digital number (DN) to reflectance
+    def dn2(self, dn, calibration, slope, offset):
+        """Convert digital number (DN) to reflectance or radiance
+
         Args:
             dn: Raw detector digital number
             slope: Slope
             offset: Offset
+
         Returns:
             Reflectance [%]
+            or Radiance [mW/ (m2 cm-1 sr)]
         """
         ref = dn * slope + offset
-        ref *= 100  # set unit to %
+        if calibration == 'reflectance':
+            ref *= 100  # set unit to %
         ref = ref.clip(min=0)
         ref.attrs = dn.attrs
 
