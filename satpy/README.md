@@ -5,10 +5,10 @@ Read FY-4A AGRI data using satpy.
 
 ## Usage
 
-Since this hasn't been merged into satpy, you need to download or clone the corresponding repository first:
+Since this has been merged into satpy and will be released at v0.17.0, you need to download or clone the repository first:
 
 ```
-git clone -b add_fy4a https://github.com/zxdawn/satpy.git
+git clone https://github.com/pytroll/satpy.git
 ```
 
 Then, install it in development:
