@@ -5,23 +5,10 @@ Read FY-4A AGRI data using satpy.
 
 ## Usage
 
-Since this has been merged into satpy and will be released at v0.17.0, you need to download or clone the repository first:
+Since this has been merged into satpy and released at v0.17.0, you can install satpy directly:
 
 ```
-git clone https://github.com/pytroll/satpy.git
-```
-
-Then, install it in development:
-
-```
-cd satpy
-pip install -e .
-```
-
-To check the update:
-
-```
-git pull
+conda install -c conda-forge satpy
 ```
 
 ## Example
