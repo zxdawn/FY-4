@@ -1,10 +1,10 @@
 ## Satpy支持的文件类型
 
-[Satpy](https://satpy.readthedocs.io/en/latest/)目前[支持的卫星数据](https://satpy.readthedocs.io/en/latest/index.html#reader-table)有50种(MSG, Himawari 8, GEOS-R, MODIS, Sentinel- 1/2/3/5, SNPP等)。
+[Satpy](https://satpy.readthedocs.io/en/latest/)目前[支持的卫星数据](https://satpy.readthedocs.io/en/latest/index.html#reader-table)有50种(MSG, Himawari 8, GOES-R, MODIS, Sentinel- 1/2/3/5, SNPP等)。
 
 本文以最近[**朝曦dawn**](https://dreambooker.site/)添加的**风云4A(FY4A) AGRI L1**数据为例。
 
-[**本文Notebook**](https://github.com/zxdawn/FY-4/tree/master/satpy/examples)已放在GitHub上，供大家学习。
+[**Notebook**](https://github.com/zxdawn/FY-4/tree/master/satpy/examples)已放在GitHub上，供大家学习。
 <br>
 
 ---
@@ -14,7 +14,7 @@ FY4A AGRI L1数据有两种类别：
 1.全圆盘
 	
 > FY4A-_AGRI--\_N_DISK_1047E_L1-_FDI-_MULT_NOM_20190807060000_20190807061459_4000M_V0001.HDF
-
+    
 2.中国区
 
 > FY4A-_AGRI--\_N_REGC_1047E_L1-_FDI-_MULT_NOM_20190807045334_20190807045750_1000M_V0001.HDF
@@ -32,6 +32,12 @@ FY4A AGRI L1数据有两种类别：
 
 3.[FY4A官方应用平台](http://rsapp.nsmc.org.cn/geofy/)
 
+## 安装
+
+推荐通过conda安装，简单快捷。
+```
+$ conda install -c conda-forge satpy
+```
 
 ## 定标
 
@@ -108,7 +114,7 @@ scn.load([ir_channel])
 scn.show(ir_channel)
 ```
 
-<img src='../figures/agri_C12.png'>
+<img src='./figures/agri_C12.png'>
 
 ### 全圆盘真彩色图
 
@@ -141,6 +147,8 @@ scn.available_composite_names()
 
 ```python
 # 注：这步需要大内存 (取决于cpu核数)
+# 可查看FAQ关于内存的讨论：
+#    https://satpy.readthedocs.io/en/latest/faq.html
 
 composite = 'true_color'
 scn.load([composite])
@@ -150,7 +158,8 @@ scn.show(composite)
 		filename='{sensor}_{name}.png')
 ```
 
-<img src='../figures/agri_true_color.png'>
+
+<img src='./figures/agri_true_color.png'>
 
 ### 特定区域图
 
@@ -222,8 +231,8 @@ lekima_scene.show(composite)
 		filename='{sensor}_{name}_resampled.png')
 ```
 
-<img src='../figures/agri_true_color_resampled.png'>
+<img src='./figures/agri_true_color_resampled.png'>
 
 如果想利用自定义的colormap来生成图像（如下图），请参阅关于`enhancement`的notebook（正在忍饿赶稿中）。
 
-<img src='../figures/agri_C12_resampled_colorize.png'>
+<img src='./figures/agri_C12_resampled_colorize.png'>
