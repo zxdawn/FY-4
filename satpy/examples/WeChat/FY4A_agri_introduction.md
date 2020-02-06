@@ -14,7 +14,7 @@ FY4A AGRI L1数据有两种类别：
 1.全圆盘
 	
 > FY4A-_AGRI--\_N_DISK_1047E_L1-_FDI-_MULT_NOM_20190807060000_20190807061459_4000M_V0001.HDF
-    
+
 2.中国区
 
 > FY4A-_AGRI--\_N_REGC_1047E_L1-_FDI-_MULT_NOM_20190807045334_20190807045750_1000M_V0001.HDF
@@ -114,7 +114,7 @@ scn.load([ir_channel])
 scn.show(ir_channel)
 ```
 
-<img src='./figures/agri_C12.png'>
+<img src='../figures/agri_C12.png'>
 
 ### 全圆盘真彩色图
 
@@ -158,8 +158,7 @@ scn.show(composite)
 		filename='{sensor}_{name}.png')
 ```
 
-
-<img src='./figures/agri_true_color.png'>
+<img src='../figures/agri_true_color.png'>
 
 ### 特定区域图
 
@@ -231,8 +230,8 @@ lekima_scene.show(composite)
 		filename='{sensor}_{name}_resampled.png')
 ```
 
-<img src='./figures/agri_true_color_resampled.png'>
+<img src='../figures/agri_true_color_resampled.png'>
 
 如果想利用自定义的colormap来生成图像（如下图），请参阅关于`enhancement`的notebook（正在忍饿赶稿中）。
 
-<img src='./figures/agri_C12_resampled_colorize.png'>
+<img src='../figures/agri_C12_resampled_colorize.png'>
