@@ -9,4 +9,8 @@
 - [FY4A_agri_introduction(zh-CN).ipynb](FY4A_agri_introduction(zh-CN).ipynb)
 
   风云4A基础读取与绘图教程（简体中文版）
+  
+- [Combined_colormaps(EN).ipynb](Combined_colormaps(EN).ipynb)
+
+  利用合并的colormaps绘制Satpy读取的数据
 

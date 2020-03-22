@@ -9,4 +9,7 @@
 - [FY4A_agri_introduction(zh-CN).ipynb](FY4A_agri_introduction(zh-CN).ipynb)
 
   The basic tutorial (Chinese) of reading and plotting FY4A AGRI data.
+  
+- [Combined_colormaps(EN).ipynb](Combined_colormaps(EN).ipynb)
 
+  The tutorial of combing colormaps for Satpy datasets.
